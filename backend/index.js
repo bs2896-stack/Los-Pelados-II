@@ -13,10 +13,8 @@ function enviarSabores(){
 }
 
 function enviarProductos(){
-    const productos = JSON.parse(fs.readFileSync("data/productos.json" , "utf-8"));
+    const producto = JSON.parse(fs.readFileSync("data/productos.json" , "utf-8"));
     return productos;
-    
-
 }
 
 
@@ -25,13 +23,16 @@ function enviarPedido(producto, sabores, nombre) {
 
 if (!Array.isArray(pedidos)) pedidos = [];
 
-let Pedido = (producto; producto, sabores;  sabores, nombre; nombre);
+let Pedido = {producto: producto, sabores: sabores, nombre: nombre};
 pedidos.push(Pedido);
 let pedidosJSON= JSON.stringify(pedidos, null, 2)
 fs.writeFileSync("data/pedidos.json", pedidosJSON);
 return {ok:true};
 
 
-
+subscribeGETEvent("sabores", enviarSabores)
+subscribeGETEvent  ("productos", enviarProductos)
+suscribePOSTEvent ("pedidos", ennviarPedidos)
+startserver();
 
 }
