@@ -1,45 +1,39 @@
-import {
-    subscribeGETEvent, 
-    subscribePOSTEvent, 
-    startServer
-} from "soquetic";
+import fs from "fs"
+import { subscribeGETEvent, subscribePOSTEvent, realTimeEvent, startServer } from "soquetic";
+let sabores = fs.readFileSync ("data/sabores.JSON", "utf-8")
+sabores = JSON.parse (sabores)
 
-import fs from "fs";
 
-// Función para enviar sabores (evento GET)
-function enviarSabores() {
-    const sabores = JSON.parse(fs.readFileSync("data/sabores.json", "utf-8"));
-    return sabores;
+let productos = fs.readFileSync ("data/productos.JSON", "utf-8")
+productos = JSON.parse (productos)
+
+
+let pedidos= fs.readFileSync("data/pedidos.JSON", "utf-8")
+pedidos= JSON.parse (pedidos)
+
+
+function leersabores (){
+sabores
+return sabores
+}
+function leerproductos () {
+productos
+return productos
+}
+function escribirpedidos (producto, sabores, nombre) {
+    let pedido = {cliente: nombre, producto: producto, sabores: sabores};
+    let pedidosJSON = fs.readFileSync ("data/pedidos.json", "utf-8");
+    let pedidos = JSON.parse (pedidosJSON)
+    pedidos.push (pedido)
+    fs.writeFileSync ("data/pedidos.json", JSON.stringify (pedidos,null,2));
+
+
 }
 
-// Función para enviar productos (evento GET)
-function enviarProductos() {
-    const productos = JSON.parse(fs.readFileSync("data/productos.json", "utf-8"));
-    return productos;
-}
 
-// Función para recibir y guardar pedidos (evento POST)
-function enviarPedido(data) {
-    try {
-        let pedidos = JSON.parse(fs.readFileSync("data/pedidos.json", "utf-8"));
-        
-        if (!Array.isArray(pedidos)) pedidos = [];
-        
-        pedidos.push(data);
-        let pedidosJSON = JSON.stringify(pedidos, null, 2);
-        fs.writeFileSync("data/pedidos.json", pedidosJSON);
-        
-        return { ok: true };
-    } catch (error) {
-        console.error("Error al guardar pedido:", error);
-        return { ok: false };
-    }
-}
+subscribeGETEvent ("sabores", leersabores)
+subscribeGETEvent ("productos", leerproductos)
+subscribePOSTEvent ("pedido", (producto, sabores, nombre) => escribirpedidos(producto, sabores, nombre))
 
-// Suscribirse a los eventos
-subscribeGETEvent("sabores", enviarSabores);
-subscribeGETEvent("productos", enviarProductos);
-subscribePOSTEvent("pedido", enviarPedido);
 
-// Iniciar el servidor
-startServer();
+startServer (3000, true)
